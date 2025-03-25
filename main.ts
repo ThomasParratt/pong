@@ -14,15 +14,30 @@ const paddleSpeed = 6;
 let player1Score = 0;
 let player2Score = 0;
 
-// Event Listener
+// To track which keys are currently pressed
+const keysPressed: { [key: string]: boolean } = {}; // Object to track key presses
+
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'w') player1Y -= paddleSpeed;
-  if (e.key === 's') player1Y += paddleSpeed;
-  player1Y = Math.max(0, Math.min(canvasHeight - paddleHeight, player1Y));
-  if (e.key === 'ArrowUp') player2Y -= paddleSpeed;
-  if (e.key === 'ArrowDown') player2Y += paddleSpeed;
-  player2Y = Math.max(0, Math.min(canvasHeight - paddleHeight, player2Y));
+  keysPressed[e.key] = true; // Set key to true when it's pressed
 });
+
+document.addEventListener('keyup', (e) => {
+  keysPressed[e.key] = false; // Set key to false when it's released
+});
+
+function updatePlayerPositions() {
+  // Player 1 movement (W and S keys)
+  if (keysPressed['w']) player1Y -= paddleSpeed;
+  if (keysPressed['s']) player1Y += paddleSpeed;
+
+  // Player 2 movement (ArrowUp and ArrowDown keys)
+  if (keysPressed['ArrowUp']) player2Y -= paddleSpeed;
+  if (keysPressed['ArrowDown']) player2Y += paddleSpeed;
+
+  // Ensure paddles stay within bounds
+  player1Y = Math.max(0, Math.min(canvasHeight - paddleHeight, player1Y));
+  player2Y = Math.max(0, Math.min(canvasHeight - paddleHeight, player2Y));
+}
 
 // Game Loop
 function gameLoop() {
@@ -32,6 +47,7 @@ function gameLoop() {
 }
 
 function update() {
+  updatePlayerPositions();
   // Ball Movement
   ballX += ballSpeedX;
   ballY += ballSpeedY;
