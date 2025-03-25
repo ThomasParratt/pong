@@ -70,7 +70,7 @@ function update() {
       ballSpeedX *= -1;
 
       // Calculate where the ball hit the paddle
-      const hitPos = (ballY + ballSize / 2) - (player1Y + paddleHeight / 2);
+      const hitPos = (ballY + ballSize / 2) - (player1Y + paddleHeight / 2); //how far the ball's center is from the paddle's center vertically
       const normalized = hitPos / (paddleHeight / 2); // Value between -1 and 1
       ballSpeedY = normalized * 5; // Max vertical speed
   }
