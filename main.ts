@@ -63,13 +63,13 @@ function update() {
   if (ballY <= 0 || ballY + ballSize >= canvasHeight) ballSpeedY *= -1;
 
   // Player paddle collision
-  if (ballX <= paddleWidth + 15 &&
+  if (ballX === paddleWidth + 15 &&
       ballY + ballSize >= player1Y &&
       ballY <= player1Y + paddleHeight) {
     ballSpeedX *= -1;
   }
 
-  if (ballX + ballSize >= canvasWidth - paddleWidth - 15 &&
+  if (ballX + ballSize === canvasWidth - paddleWidth - 15 &&
       ballY + ballSize >= player2Y &&
       ballY <= player2Y + paddleHeight) {
     ballSpeedX *= -1;
