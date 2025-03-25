@@ -1,6 +1,61 @@
 const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d')!;
 
+/*
+let playerName = ''; // Store the player's name
+let isTyping = false; // Flag to check if the player is typing
+
+// Set up the initial canvas state
+ctx.font = "50px 'Courier New', monospace";
+ctx.fillStyle = 'white';
+ctx.textAlign = 'center';
+ctx.textBaseline = 'middle';
+
+// Draw initial message on canvas
+const drawInitialMessage = () => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+  ctx.fillText('Click here to enter your name!', canvas.width / 2, canvas.height / 2);
+};
+
+// Draw the player's name on the canvas
+const drawName = () => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear previous canvas state
+  ctx.fillText(`Hello, ${playerName}`, canvas.width / 2, canvas.height / 2); // Display name
+};
+
+// Event listener to detect click on canvas to start typing
+canvas.addEventListener('click', () => {
+  if (!isTyping) {
+    isTyping = true; // Start typing mode
+    playerName = ''; // Clear the name initially
+    drawName(); // Draw blank name
+    startTyping(); // Start capturing keyboard input
+  }
+});
+
+// Start capturing keyboard input for the name
+const startTyping = () => {
+  // Event listener for key presses
+  window.addEventListener('keydown', (event: KeyboardEvent) => {
+    if (isTyping) {
+      if (event.key === 'Backspace') {
+        // Remove the last character if Backspace is pressed
+        playerName = playerName.slice(0, -1);
+      } else if (event.key.length === 1) {
+        // Add the character to the player name
+        playerName += event.key;
+      }
+      
+      // Redraw the name on the canvas as it's typed
+      drawName();
+    }
+  });
+};
+
+// Start the game by displaying initial message
+drawInitialMessage();
+*/
+
 // Game Constants
 const paddleWidth = 10, paddleHeight = 100;
 const ballSize = 10;
