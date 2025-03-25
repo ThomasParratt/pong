@@ -62,17 +62,30 @@ function update() {
   // Collision with top and bottom
   if (ballY <= 0 || ballY + ballSize >= canvasHeight) ballSpeedY *= -1;
 
-  // Player paddle collision
-  if (ballX === paddleWidth + 15 &&
-      ballY + ballSize >= player1Y &&
-      ballY <= player1Y + paddleHeight) {
-    ballSpeedX *= -1;
+  // Player 1 paddle collision
+  if (ballX <= paddleWidth + 15 &&
+    ballY + ballSize >= player1Y &&
+    ballY <= player1Y + paddleHeight) {
+
+      ballSpeedX *= -1;
+
+      // Calculate where the ball hit the paddle
+      const hitPos = (ballY + ballSize / 2) - (player1Y + paddleHeight / 2);
+      const normalized = hitPos / (paddleHeight / 2); // Value between -1 and 1
+      ballSpeedY = normalized * 5; // Max vertical speed
   }
 
-  if (ballX + ballSize === canvasWidth - paddleWidth - 15 &&
-      ballY + ballSize >= player2Y &&
-      ballY <= player2Y + paddleHeight) {
-    ballSpeedX *= -1;
+  // Player 2 paddle collision
+  if (ballX + ballSize >= canvasWidth - paddleWidth - 15 &&
+    ballY + ballSize >= player2Y &&
+    ballY <= player2Y + paddleHeight) {
+
+      ballSpeedX *= -1;
+
+      // Calculate where the ball hit the paddle
+      const hitPos = (ballY + ballSize / 2) - (player2Y + paddleHeight / 2);
+      const normalized = hitPos / (paddleHeight / 2); // Value between -1 and 1
+      ballSpeedY = normalized * 5; // Max vertical speed
   }
 
   // Reset ball if missed and count score
