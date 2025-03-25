@@ -1,61 +1,6 @@
 const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d')!;
 
-/*
-let playerName = ''; // Store the player's name
-let isTyping = false; // Flag to check if the player is typing
-
-// Set up the initial canvas state
-ctx.font = "50px 'Courier New', monospace";
-ctx.fillStyle = 'white';
-ctx.textAlign = 'center';
-ctx.textBaseline = 'middle';
-
-// Draw initial message on canvas
-const drawInitialMessage = () => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
-  ctx.fillText('Click here to enter your name!', canvas.width / 2, canvas.height / 2);
-};
-
-// Draw the player's name on the canvas
-const drawName = () => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear previous canvas state
-  ctx.fillText(`Hello, ${playerName}`, canvas.width / 2, canvas.height / 2); // Display name
-};
-
-// Event listener to detect click on canvas to start typing
-canvas.addEventListener('click', () => {
-  if (!isTyping) {
-    isTyping = true; // Start typing mode
-    playerName = ''; // Clear the name initially
-    drawName(); // Draw blank name
-    startTyping(); // Start capturing keyboard input
-  }
-});
-
-// Start capturing keyboard input for the name
-const startTyping = () => {
-  // Event listener for key presses
-  window.addEventListener('keydown', (event: KeyboardEvent) => {
-    if (isTyping) {
-      if (event.key === 'Backspace') {
-        // Remove the last character if Backspace is pressed
-        playerName = playerName.slice(0, -1);
-      } else if (event.key.length === 1) {
-        // Add the character to the player name
-        playerName += event.key;
-      }
-      
-      // Redraw the name on the canvas as it's typed
-      drawName();
-    }
-  });
-};
-
-// Start the game by displaying initial message
-drawInitialMessage();
-*/
-
 // Game Constants
 const paddleWidth = 10, paddleHeight = 100;
 const ballSize = 10;
@@ -66,6 +11,13 @@ let player2Y = (canvasHeight - paddleHeight) / 2;
 let ballX = canvasWidth / 2, ballY = canvasHeight / 2;
 let ballSpeedX = 5, ballSpeedY = 3;
 const paddleSpeed = 6;
+let playerNames = ["Tom", "Felipe", "Michael", "Panu", "Lauri"];
+let player1 = playerNames[Math.floor(Math.random() * 5)];
+let player2 = playerNames[Math.floor(Math.random() * 5)];
+while (player2 === player1) {
+  // If player2 is the same as player1, select a new player2
+  player2 = playerNames[Math.floor(Math.random() * 5)];
+}
 let player1Score = 0;
 let player2Score = 0;
 
@@ -161,8 +113,15 @@ function draw() {
 
   //Draw scores
   ctx.font = "50px 'Courier New', monospace";
-  ctx.fillText("" + player1Score, canvasWidth * 0.25, 70);
-  ctx.fillText("" + player2Score, canvasWidth * 0.75, 70);
+  // Calculate the width of the text for player 1 and adjust to center
+  const player1Text = player1 + ": " + player1Score;
+  const player1TextWidth = ctx.measureText(player1Text).width;
+  ctx.fillText(player1Text, (canvasWidth * 0.25) - (player1TextWidth / 2), 70);
+
+  // Calculate the width of the text for player 2 and adjust to center
+  const player2Text = player2 + ": " + player2Score;
+  const player2TextWidth = ctx.measureText(player2Text).width;
+  ctx.fillText(player2Text, (canvasWidth * 0.75) - (player2TextWidth / 2), 70);
 }
 
 gameLoop();
