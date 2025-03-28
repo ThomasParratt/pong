@@ -34,11 +34,16 @@ document.addEventListener('keydown', (e) => {
   if (gameState === 'menu') {
     if (e.key === '1') {
       twoPlayerMode = false; // One player mode (AI plays as Player 2)
-      player2 = "AI";
+      player2 = "AI"; // Set player2 to "AI" explicitly
       gameState = 'playing';
       resetGame();
     } else if (e.key === '2') {
       twoPlayerMode = true; // Two-player mode
+      player2 = playerNames[Math.floor(Math.random() * 5)];
+      // Ensure player2 is not the same as player1
+      while (player2 === player1) {
+        player2 = playerNames[Math.floor(Math.random() * 5)];
+      }
       gameState = 'playing';
       resetGame();
     }
@@ -51,6 +56,7 @@ document.addEventListener('keydown', (e) => {
     }
   }
 });
+
 
 document.addEventListener('keyup', (e) => {
   keysPressed[e.key] = false;
