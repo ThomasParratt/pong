@@ -194,8 +194,6 @@ function drawMenu() {
   ctx.fillText(text2, (canvasWidth * 0.5) - (text2Width / 2), canvasHeight / 2 + 50);
 }
 
-
-
 function draw() {
   // Clear canvas
   ctx.fillStyle = 'black';
