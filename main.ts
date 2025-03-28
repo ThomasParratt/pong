@@ -16,12 +16,12 @@ let player2Y = (canvasHeight - paddleHeight) / 2;
 let ballX = canvasWidth / 2, ballY = canvasHeight / 2;
 let ballSpeedX = 5, ballSpeedY = 3;
 const paddleSpeed = 6;
-let playerNames = ["Tom", "Felipe", "Michael", "Panu", "Lauri"];
-let player1 = playerNames[Math.floor(Math.random() * 5)];
-let player2 = playerNames[Math.floor(Math.random() * 5)];
+let playerNames = ["Tom", "Jacob"];
+let player1 = playerNames[Math.floor(Math.random() * 2)];
+let player2 = playerNames[Math.floor(Math.random() * 2)];
 while (player2 === player1) {
   // If player2 is the same as player1, select a new player2
-  player2 = playerNames[Math.floor(Math.random() * 5)];
+  player2 = playerNames[Math.floor(Math.random() * 2)];
 }
 let winner = player1;
 let player1Score = 0;
@@ -39,11 +39,12 @@ document.addEventListener('keydown', (e) => {
       resetGame();
     } else if (e.key === '2') {
       twoPlayerMode = true; // Two-player mode
-      player2 = playerNames[Math.floor(Math.random() * 5)];
+      player2 = playerNames[Math.floor(Math.random() * 2)];
       // Ensure player2 is not the same as player1
       while (player2 === player1) {
-        player2 = playerNames[Math.floor(Math.random() * 5)];
+        player2 = playerNames[Math.floor(Math.random() * 2)];
       }
+      winner = player1
       gameState = 'playing';
       resetGame();
     }
@@ -193,9 +194,9 @@ function drawMenu() {
   ctx.fillText(pong, (canvasWidth * 0.5) - (pongWidth / 2), canvasHeight / 4);
 
   ctx.font = "30px 'Courier New', monospace"; 
-  const text1 = "Press '1' for One Player";
+  const text1 = "vs computer (Press '1')";
   const text1Width = ctx.measureText(text1).width;
-  const text2 = "Press '2' for Two Players";
+  const text2 = "vs human (Press '2')";
   const text2Width = ctx.measureText(text2).width;
 
   ctx.fillText(text1, (canvasWidth * 0.5) - (text1Width / 2), canvasHeight / 2);
