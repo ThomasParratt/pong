@@ -1,3 +1,5 @@
+// CLASSES:   Player, (Paddle), Ball, Game ?
+
 const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d')!;
 
@@ -184,10 +186,10 @@ function drawMenu() {
   const pongWidth = ctx.measureText(pong).width;
   ctx.fillText(pong, (canvasWidth * 0.5) - (pongWidth / 2), canvasHeight / 4);
 
-  ctx.font = "30px 'Courier New', monospace"; // Set font before measuring text
+  ctx.font = "30px 'Courier New', monospace"; 
   const text1 = "Press '1' for One Player";
   const text1Width = ctx.measureText(text1).width;
-  const text2 = "Press '2' for Two Players"; // Fixed text from "One Player" to "Two Players"
+  const text2 = "Press '2' for Two Players";
   const text2Width = ctx.measureText(text2).width;
 
   ctx.fillText(text1, (canvasWidth * 0.5) - (text1Width / 2), canvasHeight / 2);
@@ -218,12 +220,12 @@ function draw() {
   /* ctx.fillText("" + player1Score, canvasWidth * 0.25, 70);
   ctx.fillText("" + player2Score, canvasWidth * 0.75, 70); */
 
-  // Calculate the width of the text for player 1 and adjust to center
+  // Calculate the width of the text for player 1 and adjust to centre
   const player1Text = player1 + ": " + player1Score;
   const player1TextWidth = ctx.measureText(player1Text).width;
   ctx.fillText(player1Text, (canvasWidth * 0.25) - (player1TextWidth / 2), 70);
 
-  // Calculate the width of the text for player 2 and adjust to center
+  // Calculate the width of the text for player 2 and adjust to centre
   const player2Text = player2 + ": " + player2Score;
   const player2TextWidth = ctx.measureText(player2Text).width;
   ctx.fillText(player2Text, (canvasWidth * 0.75) - (player2TextWidth / 2), 70);
