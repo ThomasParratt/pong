@@ -116,6 +116,7 @@ class Game {
         this.resetGame();
       } else if (e.key === '2') {
         this.twoPlayerMode = true; // Two-player mode
+        this.player2.name = "Player 2";
         this.gameState = 'playing';
         this.resetGame();
       }
