@@ -1,258 +1,260 @@
 const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d')!;
 
+// Game Constants
+const paddleWidth = 10, paddleHeight = 100;
+const ballSize = 10;
 const canvasWidth = canvas.width;
 const canvasHeight = canvas.height;
-const playerNames = ["Tom", "Felipe", "Panu", "Michael", "Lauri"];
-
-class Player {
-  name: string;
-
-  generateName() {
-    this.name = playerNames[Math.floor(Math.random() * 5)];
-  }
-}
 
 class Paddle {
-  width = 10;
-  height = 100;
-  y = (this.width - this.height) / 2;
-  speed = 6;
+  y: number;
+  speed: number = 6;
+
+  constructor(public x: number) {
+    this.y = (canvasHeight - paddleHeight) / 2;
+  }
+
+  moveUp() {
+    this.y -= this.speed;
+  }
+
+  moveDown() {
+    this.y += this.speed;
+  }
+
+  stayInBounds() {
+    this.y = Math.max(0, Math.min(canvasHeight - paddleHeight, this.y));
+  }
+
+  draw() {
+    ctx.fillStyle = 'white';
+    ctx.fillRect(this.x, this.y, paddleWidth, paddleHeight);
+  }
 }
 
 class Ball {
-  size = 100;
-  x = canvasWidth / 2;
-  y = canvasHeight / 2;
-  speedX = 5;
-  speedY = 3;
+  x: number;
+  y: number;
+  speedX: number;
+  speedY: number;
+
+  constructor() {
+    this.reset();
+  }
+
+  move() {
+    this.x += this.speedX;
+    this.y += this.speedY;
+  }
+
+  checkCollisions(player1: Paddle, player2: Paddle) {
+    // Ball collision with top and bottom
+    if (this.y <= 0 || this.y + ballSize >= canvasHeight) {
+      this.speedY *= -1;
+    }
+
+    // Player 1 paddle collision
+    if (this.x === paddleWidth + 15 &&
+      this.y + ballSize >= player1.y &&
+      this.y <= player1.y + paddleHeight) {
+      this.speedX *= -1;
+    }
+
+    // Player 2 paddle collision
+    if (this.x + ballSize === canvasWidth - paddleWidth - 15 &&
+      this.y + ballSize >= player2.y &&
+      this.y <= player2.y + paddleHeight) {
+      this.speedX *= -1;
+    }
+  }
+
+  reset() {
+    this.x = canvasWidth / 2;
+    this.y = canvasHeight / 2;
+    this.speedX = 5;
+    this.speedY = 3 * (Math.random() > 0.5 ? 1 : -1);
+  }
+
+  draw() {
+    ctx.fillStyle = 'white';
+    ctx.fillRect(this.x, this.y, ballSize, ballSize);
+  }
+}
+
+class Player {
+  constructor(public name: string, public paddle: Paddle, public score: number = 0) {}
 }
 
 class Game {
-  state: 'menu' | 'playing' | 'result' = 'menu'; // Start in menu mode
-  twoPlayermode = false;
-}
+  gameState: 'menu' | 'playing' | 'result' = 'menu';
+  twoPlayerMode: boolean = false;
+  player1: Player;
+  player2: Player;
+  ball: Ball;
+  keysPressed: { [key: string]: boolean } = {};
+  winner: Player | null = null;
 
+  constructor() {
+    this.player1 = new Player('Player 1', new Paddle(15));
+    this.player2 = new Player('Player 2', new Paddle(canvasWidth - paddleWidth - 15));
+    this.ball = new Ball();
+    
+    // Listen for key events
+    document.addEventListener('keydown', this.handleKeyDown.bind(this));
+    document.addEventListener('keyup', this.handleKeyUp.bind(this));
 
-let player1 = playerNames[Math.floor(Math.random() * 2)];
-let player2 = playerNames[Math.floor(Math.random() * 2)];
-while (player2 === player1) {
-  // If player2 is the same as player1, select a new player2
-  player2 = playerNames[Math.floor(Math.random() * 2)];
-}
-let winner = player1;
-let player1Score = 0;
-let player2Score = 0;
+    this.gameLoop();
+  }
 
-// To track which keys are currently pressed
-const keysPressed: { [key: string]: boolean } = {}; // Object to track key presses
-
-document.addEventListener('keydown', (e) => {
-  if (gameState === 'menu') {
-    if (e.key === '1') {
-      twoPlayerMode = false; // One player mode (AI plays as Player 2)
-      player2 = "AI"; // Set player2 to "AI" explicitly
-      gameState = 'playing';
-      resetGame();
-    } else if (e.key === '2') {
-      twoPlayerMode = true; // Two-player mode
-      player2 = playerNames[Math.floor(Math.random() * 2)];
-      // Ensure player2 is not the same as player1
-      while (player2 === player1) {
-        player2 = playerNames[Math.floor(Math.random() * 2)];
+  handleKeyDown(e: KeyboardEvent) {
+    if (this.gameState === 'menu') {
+      if (e.key === '1') {
+        this.twoPlayerMode = false; // One player mode (AI plays as Player 2)
+        this.player2.name = "AI";
+        this.gameState = 'playing';
+        this.resetGame();
+      } else if (e.key === '2') {
+        this.twoPlayerMode = true; // Two-player mode
+        this.gameState = 'playing';
+        this.resetGame();
       }
-      winner = player1
-      gameState = 'playing';
-      resetGame();
-    }
-  } else {
-    if (e.key === 'Escape') {
-      gameState = 'menu'; // Return to the menu screen
-      resetGame(); // Reset game variables
     } else {
-      keysPressed[e.key] = true; // Handle normal game input
+      if (e.key === 'Escape') {
+        this.gameState = 'menu';
+        this.resetGame();
+      } else {
+        this.keysPressed[e.key] = true;
+      }
     }
   }
-});
 
-
-document.addEventListener('keyup', (e) => {
-  keysPressed[e.key] = false;
-});
-
-function resetGame() {
-  player1Y = (canvasHeight - paddleHeight) / 2;
-  player2Y = (canvasHeight - paddleHeight) / 2;
-  ballX = canvasWidth / 2;
-  ballY = canvasHeight / 2;
-  ballSpeedX = 5;
-  ballSpeedY = 3;
-  player1Score = 0;
-  player2Score = 0;
-}
-
-
-function updatePlayerPositions() {
-  // Player 1 movement (W and S keys)
-  if (keysPressed['w']) player1Y -= paddleSpeed;
-  if (keysPressed['s']) player1Y += paddleSpeed;
-
-  if (twoPlayerMode) {
-    // Player 2 movement (ArrowUp and ArrowDown keys)
-    if (keysPressed['ArrowUp']) player2Y -= paddleSpeed;
-    if (keysPressed['ArrowDown']) player2Y += paddleSpeed;
-  } else {
-    // AI movement for Player 2
-    const lerpSpeed = 0.1; // Smooth movement
-    player2Y += (ballY - (player2Y + paddleHeight / 2)) * lerpSpeed;
+  handleKeyUp(e: KeyboardEvent) {
+    this.keysPressed[e.key] = false;
   }
 
-  // Ensure paddles stay within bounds
-  player1Y = Math.max(0, Math.min(canvasHeight - paddleHeight, player1Y));
-  player2Y = Math.max(0, Math.min(canvasHeight - paddleHeight, player2Y));
-}
+  updatePlayerPositions() {
+    // Player 1 movement (W and S keys)
+    if (this.keysPressed['w']) this.player1.paddle.moveUp();
+    if (this.keysPressed['s']) this.player1.paddle.moveDown();
 
-
-// Game Loop
-function gameLoop() {
-  if (gameState === 'menu') {
-    drawMenu();
-  } 
-  else if (gameState === 'result') {
-    drawResult();
-  }
-  else {
-    update();
-    draw();
-  }
-  requestAnimationFrame(gameLoop);
-}
-
-
-function update() {
-  updatePlayerPositions();
-  // Ball Movement
-  ballX += ballSpeedX;
-  ballY += ballSpeedY;
-
-  // Collision with top and bottom
-  if (ballY <= 0 || ballY + ballSize >= canvasHeight) ballSpeedY *= -1;
-
-  // Player 1 paddle collision
-  if (ballX === paddleWidth + 15 &&
-    ballY + ballSize >= player1Y &&
-    ballY <= player1Y + paddleHeight) {
-
-      ballSpeedX *= -1;
-
-      /* // Calculate where the ball hit the paddle
-      const hitPos = (ballY + ballSize / 2) - (player1Y + paddleHeight / 2); //how far the ball's center is from the paddle's center vertically
-      const normalized = hitPos / (paddleHeight / 2); // Value between -1 and 1
-      ballSpeedY = normalized * 3; // Max vertical speed */
-  }
-
-  // Player 2 paddle collision
-  if (ballX + ballSize === canvasWidth - paddleWidth - 15 &&
-    ballY + ballSize >= player2Y &&
-    ballY <= player2Y + paddleHeight) {
-
-      ballSpeedX *= -1;
-
-      /* // Calculate where the ball hit the paddle
-      const hitPos = (ballY + ballSize / 2) - (player2Y + paddleHeight / 2);
-      const normalized = hitPos / (paddleHeight / 2); // Value between -1 and 1
-      ballSpeedY = normalized * 3; // Max vertical speed */
-  }
-
-  // Reset ball if missed and count score
-  if (ballX < 0) {
-    player2Score++;
-    if (player2Score === 5) {
-      gameState = 'result';
-      winner = player2;
+    if (this.twoPlayerMode) {
+      // Player 2 movement (ArrowUp and ArrowDown keys)
+      if (this.keysPressed['ArrowUp']) this.player2.paddle.moveUp();
+      if (this.keysPressed['ArrowDown']) this.player2.paddle.moveDown();
+    } else {
+      // AI movement for Player 2
+      const lerpSpeed = 0.1; // Smooth movement
+      this.player2.paddle.y += (this.ball.y - (this.player2.paddle.y + paddleHeight / 2)) * lerpSpeed;
     }
-    resetBall();
+
+    this.player1.paddle.stayInBounds();
+    this.player2.paddle.stayInBounds();
   }
-  if (ballX > canvasWidth) {
-    player1Score++;
-    if (player1Score === 5) {
-      gameState = 'result';
+
+  update() {
+    this.updatePlayerPositions();
+    this.ball.move();
+    this.ball.checkCollisions(this.player1.paddle, this.player2.paddle);
+
+    // Reset ball if missed and count score
+    if (this.ball.x < 0) {
+      this.player2.score++;
+      if (this.player2.score === 5) {
+        this.gameState = 'result';
+        this.winner = this.player2;
+      }
+      this.ball.reset();
     }
-    resetBall();
+
+    if (this.ball.x > canvasWidth) {
+      this.player1.score++;
+      if (this.player1.score === 5) {
+        this.gameState = 'result';
+        this.winner = this.player1;
+      }
+      this.ball.reset();
+    }
+  }
+
+  drawResult() {
+    ctx.fillStyle = 'black';
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+    ctx.fillStyle = 'white';
+    ctx.font = "30px 'Courier New', monospace";
+    const pong = this.winner?.name + " is the winner!";
+    const pongWidth = ctx.measureText(pong).width;
+    ctx.fillText(pong, (canvasWidth * 0.5) - (pongWidth / 2), canvasHeight / 4);
+  }
+
+  drawMenu() {
+    ctx.fillStyle = 'black';
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+    ctx.fillStyle = 'white';
+    ctx.font = "100px 'Courier New', monospace";
+    const pong = "PONG";
+    const pongWidth = ctx.measureText(pong).width;
+    ctx.fillText(pong, (canvasWidth * 0.5) - (pongWidth / 2), canvasHeight / 4);
+
+    ctx.font = "30px 'Courier New', monospace"; 
+    const text1 = "vs computer (Press '1')";
+    const text1Width = ctx.measureText(text1).width;
+    const text2 = "vs human (Press '2')";
+    const text2Width = ctx.measureText(text2).width;
+
+    ctx.fillText(text1, (canvasWidth * 0.5) - (text1Width / 2), canvasHeight / 2);
+    ctx.fillText(text2, (canvasWidth * 0.5) - (text2Width / 2), canvasHeight / 2 + 50);
+  }
+
+  draw() {
+    // Clear canvas
+    ctx.fillStyle = 'black';
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+    // Draw paddles
+    this.player1.paddle.draw();
+    this.player2.paddle.draw();
+
+    // Draw centre line
+    for (let i = 0; i < canvasHeight; i += canvasHeight / 20) {
+      ctx.fillRect(canvasWidth / 2, i, 3, canvasHeight / 40);
+    }
+
+    // Draw ball
+    this.ball.draw();
+
+    // Draw scores
+    ctx.font = "50px 'Courier New', monospace";
+    const player1Text = `${this.player1.name}: ${this.player1.score}`;
+    const player1TextWidth = ctx.measureText(player1Text).width;
+    ctx.fillText(player1Text, (canvasWidth * 0.25) - (player1TextWidth / 2), 70);
+
+    const player2Text = `${this.player2.name}: ${this.player2.score}`;
+    const player2TextWidth = ctx.measureText(player2Text).width;
+    ctx.fillText(player2Text, (canvasWidth * 0.75) - (player2TextWidth / 2), 70);
+  }
+
+  resetGame() {
+    this.player1.paddle.y = (canvasHeight - paddleHeight) / 2;
+    this.player2.paddle.y = (canvasHeight - paddleHeight) / 2;
+    this.ball.reset();
+    this.player1.score = 0;
+    this.player2.score = 0;
+  }
+
+  gameLoop() {
+    if (this.gameState === 'menu') {
+      this.drawMenu();
+    } else if (this.gameState === 'result') {
+      this.drawResult();
+    } else {
+      this.update();
+      this.draw();
+    }
+    requestAnimationFrame(this.gameLoop.bind(this));
   }
 }
 
-function resetBall() {
-  ballX = canvasWidth / 2;
-  ballY = canvasHeight / 2;
-  ballSpeedX = -ballSpeedX;
-  ballSpeedY = 3 * (Math.random() > 0.5 ? 1 : -1);
-}
-
-function drawResult() {
-  ctx.fillStyle = 'black';
-  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-
-  ctx.fillStyle = 'white';
-  ctx.font = "30px 'Courier New', monospace";
-  const pong = winner + " is the winner!";
-  const pongWidth = ctx.measureText(pong).width;
-  ctx.fillText(pong, (canvasWidth * 0.5) - (pongWidth / 2), canvasHeight / 4);
-}
-
-function drawMenu() {
-  ctx.fillStyle = 'black';
-  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-
-  ctx.fillStyle = 'white';
-  ctx.font = "100px 'Courier New', monospace";
-  const pong = "PONG";
-  const pongWidth = ctx.measureText(pong).width;
-  ctx.fillText(pong, (canvasWidth * 0.5) - (pongWidth / 2), canvasHeight / 4);
-
-  ctx.font = "30px 'Courier New', monospace"; 
-  const text1 = "vs computer (Press '1')";
-  const text1Width = ctx.measureText(text1).width;
-  const text2 = "vs human (Press '2')";
-  const text2Width = ctx.measureText(text2).width;
-
-  ctx.fillText(text1, (canvasWidth * 0.5) - (text1Width / 2), canvasHeight / 2);
-  ctx.fillText(text2, (canvasWidth * 0.5) - (text2Width / 2), canvasHeight / 2 + 50);
-}
-
-function draw() {
-  // Clear canvas
-  ctx.fillStyle = 'black';
-  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-
-  // Draw player paddles
-  ctx.fillStyle = 'white';
-  ctx.fillRect(15, player1Y, paddleWidth, paddleHeight);
-
-  ctx.fillRect((canvasWidth - paddleWidth) - 15, player2Y, paddleWidth, paddleHeight);
-
-  // Draw centre line
-  for (let i = 0; i < canvasHeight; i+=canvasHeight/20)
-    ctx.fillRect(canvasWidth / 2, i, 3, canvasHeight / 40);
-
-  // Draw ball
-  ctx.fillRect(ballX, ballY, ballSize, ballSize);
-
-  //Draw scores
-  ctx.font = "50px 'Courier New', monospace";
-  
-  /* ctx.fillText("" + player1Score, canvasWidth * 0.25, 70);
-  ctx.fillText("" + player2Score, canvasWidth * 0.75, 70); */
-
-  // Calculate the width of the text for player 1 and adjust to centre
-  const player1Text = player1 + ": " + player1Score;
-  const player1TextWidth = ctx.measureText(player1Text).width;
-  ctx.fillText(player1Text, (canvasWidth * 0.25) - (player1TextWidth / 2), 70);
-
-  // Calculate the width of the text for player 2 and adjust to centre
-  const player2Text = player2 + ": " + player2Score;
-  const player2TextWidth = ctx.measureText(player2Text).width;
-  ctx.fillText(player2Text, (canvasWidth * 0.75) - (player2TextWidth / 2), 70);
-}
-
-gameLoop();
+const game = new Game();
