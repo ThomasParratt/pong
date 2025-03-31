@@ -1,22 +1,39 @@
-// CLASSES:   Player, (Paddle), Ball, Game ?
-
 const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d')!;
 
-let gameState: 'menu' | 'playing' | 'result' = 'menu'; // Start in menu mode
-let twoPlayerMode = false; // Default is one-player mode
-
-// Game Constants
-const paddleWidth = 10, paddleHeight = 100;
-const ballSize = 10;
 const canvasWidth = canvas.width;
 const canvasHeight = canvas.height;
-let player1Y = (canvasHeight - paddleHeight) / 2;
-let player2Y = (canvasHeight - paddleHeight) / 2;
-let ballX = canvasWidth / 2, ballY = canvasHeight / 2;
-let ballSpeedX = 5, ballSpeedY = 3;
-const paddleSpeed = 6;
-let playerNames = ["Tom", "Jacob"];
+const playerNames = ["Tom", "Felipe", "Panu", "Michael", "Lauri"];
+
+class Player {
+  name: string;
+
+  generateName() {
+    this.name = playerNames[Math.floor(Math.random() * 5)];
+  }
+}
+
+class Paddle {
+  width = 10;
+  height = 100;
+  y = (this.width - this.height) / 2;
+  speed = 6;
+}
+
+class Ball {
+  size = 100;
+  x = canvasWidth / 2;
+  y = canvasHeight / 2;
+  speedX = 5;
+  speedY = 3;
+}
+
+class Game {
+  state: 'menu' | 'playing' | 'result' = 'menu'; // Start in menu mode
+  twoPlayermode = false;
+}
+
+
 let player1 = playerNames[Math.floor(Math.random() * 2)];
 let player2 = playerNames[Math.floor(Math.random() * 2)];
 while (player2 === player1) {
